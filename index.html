@@ -270,7 +270,7 @@
         <p class="font-medium text-slate-700 mb-1">Engagements tab:</p>
         <div class="bg-slate-50 rounded-lg p-3 text-xs font-mono overflow-x-auto border border-slate-200">Company | Status | Sourcing Required | Sourcing Status | Channel Link | Project Type | Notes | Target Talent | Onboarded | Pending | Risk Level | Risk Reason | Target Date | Ramp Up Plan | Last Updated</div>
         <p class="font-medium text-slate-700 mb-1 mt-3">Each company tab (e.g. "Vetto AI"):</p>
-        <div class="bg-slate-50 rounded-lg p-3 text-xs font-mono overflow-x-auto border border-slate-200"># | Talent | Role | Project | Date Added | Country | Language | Rate | Summary | Email</div>
+        <div class="bg-slate-50 rounded-lg p-3 text-xs font-mono overflow-x-auto border border-slate-200"># | Talent | Email | Role | Project | Date Added | Country | Language | Rate | Summary</div>
         <p class="text-xs text-slate-500 mt-2">The <strong>Project</strong> column groups talent into tabs (e.g. "SWE", "Financial Advisors", "Terminal Bench"). Leave blank to show all talent in a single list.</p>
         <p class="text-xs text-slate-500 mt-2">Engagements Status values: <code class="bg-slate-100 px-1 rounded">Active</code> <code class="bg-slate-100 px-1 rounded">Contracting</code> <code class="bg-slate-100 px-1 rounded">Proposal</code> <code class="bg-slate-100 px-1 rounded">Sales</code></p>
         <p class="text-xs text-slate-500 mt-1">Risk Level values: <code class="bg-slate-100 px-1 rounded">High</code> <code class="bg-slate-100 px-1 rounded">Medium</code> <code class="bg-slate-100 px-1 rounded">Low</code> <code class="bg-slate-100 px-1 rounded">None</code></p>
@@ -735,19 +735,19 @@ function showDetail(name) {
     if (!rows.length) return `<p class="text-slate-400 text-sm">No talent in this project yet.</p>`;
     return `<table class="talent-table">
       <thead><tr>
-        <th>#</th><th>Talent</th><th>Role</th><th>Date Added</th><th>Country</th><th>Language</th><th>Rate</th><th>Summary</th><th>Email</th>
+        <th>#</th><th>Talent</th><th>Email</th><th>Role</th><th>Date Added</th><th>Country</th><th>Language</th><th>Rate</th><th>Summary</th>
       </tr></thead>
       <tbody>
         ${rows.map((t, i) => `<tr>
           <td class="text-slate-400 text-xs">${escHtml(String(t.num || i + 1))}</td>
           <td class="font-medium text-slate-800">${escHtml(t.talent)}</td>
+          <td class="text-xs">${t.email ? `<a href="mailto:${escHtml(t.email)}" class="text-blue-600 hover:underline">${escHtml(t.email)}</a>` : '<span class="text-slate-300">—</span>'}</td>
           <td class="text-slate-600 text-xs">${escHtml(t.role)}</td>
           <td class="text-slate-500 text-xs whitespace-nowrap">${formatDate(t.dateAdded)}</td>
           <td class="text-slate-600 text-xs">${escHtml(t.country)}</td>
           <td class="text-slate-600 text-xs">${escHtml(t.language)}</td>
           <td class="text-slate-700 text-xs font-medium whitespace-nowrap">${escHtml(t.rate)}</td>
           <td class="text-slate-500 text-xs">${escHtml(t.summary)}</td>
-          <td class="text-xs">${t.email ? `<a href="mailto:${escHtml(t.email)}" class="text-blue-600 hover:underline">${escHtml(t.email)}</a>` : '<span class="text-slate-300">—</span>'}</td>
         </tr>`).join('')}
       </tbody>
     </table>`;
