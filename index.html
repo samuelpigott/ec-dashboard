@@ -249,18 +249,20 @@
     <div class="space-y-5 text-sm text-slate-700">
       <div>
         <p class="font-semibold text-slate-900 mb-2">Step 1 — Create your Google Sheet</p>
-        <p>Create a new Google Sheet with <strong>2 tabs</strong>:</p>
+        <p>Create a new Google Sheet with one tab per company, plus an <strong>Engagements</strong> tab:</p>
         <ul class="mt-2 space-y-1 list-disc list-inside text-slate-600">
-          <li><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">Engagements</code> — one row per company</li>
-          <li><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">Talent</code> — one row per talent/contractor</li>
+          <li><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">Engagements</code> — one row per company (overview)</li>
+          <li><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">Vetto AI</code> — one row per talent for that company</li>
+          <li><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">Scale AI</code> — same structure, named exactly as in Engagements</li>
+          <li>…one tab per company, named to match the Company column exactly</li>
         </ul>
       </div>
       <div>
         <p class="font-semibold text-slate-900 mb-2">Step 2 — Add these column headers (Row 1)</p>
         <p class="font-medium text-slate-700 mb-1">Engagements tab:</p>
         <div class="bg-slate-50 rounded-lg p-3 text-xs font-mono overflow-x-auto border border-slate-200">Company | Status | Sourcing Required | Sourcing Status | Channel Link | Project Type | Notes | Target Talent | Onboarded | Pending | Risk Level | Risk Reason | Target Date | Ramp Up Plan | Last Updated</div>
-        <p class="font-medium text-slate-700 mb-1 mt-3">Talent tab:</p>
-        <div class="bg-slate-50 rounded-lg p-3 text-xs font-mono overflow-x-auto border border-slate-200">Company | Name | Role | Status | Blocker | Date Added | Expected Start | Notes</div>
+        <p class="font-medium text-slate-700 mb-1 mt-3">Each company tab (e.g. "Vetto AI"):</p>
+        <div class="bg-slate-50 rounded-lg p-3 text-xs font-mono overflow-x-auto border border-slate-200">Name | Role | Status | Blocker | Date Added | Expected Start | Notes</div>
         <p class="text-xs text-slate-500 mt-2">Talent Status values: <code class="bg-slate-100 px-1 rounded">Onboarded</code> <code class="bg-slate-100 px-1 rounded">Screening</code> <code class="bg-slate-100 px-1 rounded">Applied</code> <code class="bg-slate-100 px-1 rounded">Waitlisted</code> <code class="bg-slate-100 px-1 rounded">On Hold</code> <code class="bg-slate-100 px-1 rounded">Rejected</code></p>
         <p class="text-xs text-slate-500 mt-1">Risk Level values: <code class="bg-slate-100 px-1 rounded">High</code> <code class="bg-slate-100 px-1 rounded">Medium</code> <code class="bg-slate-100 px-1 rounded">Low</code> <code class="bg-slate-100 px-1 rounded">None</code></p>
         <p class="text-xs text-slate-500 mt-1">Status values: <code class="bg-slate-100 px-1 rounded">Active</code> <code class="bg-slate-100 px-1 rounded">Contracting</code> <code class="bg-slate-100 px-1 rounded">Proposal</code> <code class="bg-slate-100 px-1 rounded">Sales</code></p>
@@ -294,7 +296,6 @@
 const CONFIG = {
   SHEET_ID: localStorage.getItem('ec_sheet_id') || '',
   ENGAGEMENTS_SHEET: 'Engagements',
-  TALENT_SHEET: 'Talent',
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -490,29 +491,33 @@ const SAMPLE_COMPANIES = [
   },
 ];
 
-const SAMPLE_TALENT = [
-  { company: 'Vetto AI', name: 'Engineer 1', role: 'Software Engineer', status: 'Onboarded', blocker: '', dateAdded: '2024-04-01', expectedStart: '2024-04-01', notes: 'LLM training — coding track' },
-  { company: 'Vetto AI', name: 'Engineer 2', role: 'Software Engineer', status: 'Onboarded', blocker: '', dateAdded: '2024-04-01', expectedStart: '2024-04-01', notes: 'LLM training — coding track' },
-  { company: 'Vetto AI', name: 'Engineer 3', role: 'Software Engineer', status: 'Onboarded', blocker: '', dateAdded: '2024-04-01', expectedStart: '2024-04-01', notes: '' },
-  { company: 'Vetto AI', name: 'Engineer 4', role: 'Software Engineer', status: 'Onboarded', blocker: '', dateAdded: '2024-04-01', expectedStart: '2024-04-01', notes: '' },
-  { company: 'Vetto AI', name: 'Engineer 5', role: 'Software Engineer', status: 'Onboarded', blocker: '', dateAdded: '2024-04-01', expectedStart: '2024-04-01', notes: '' },
-  { company: 'Vetto AI', name: 'Project Lead A', role: 'Project Lead - Coding', status: 'Screening', blocker: '', dateAdded: '2024-04-10', expectedStart: '2024-04-17', notes: '' },
-  { company: 'Vetto AI', name: 'Project Lead B', role: 'Project Lead - Finance', status: 'Screening', blocker: '', dateAdded: '2024-04-10', expectedStart: '2024-04-17', notes: '' },
-  { company: 'Vetto AI', name: 'Financial Advisor 1', role: 'Financial Advisor', status: 'Applied', blocker: '', dateAdded: '2024-04-12', expectedStart: '2024-04-20', notes: 'Sourcing batch 1 of 20' },
-  { company: 'Vetto AI', name: 'Financial Advisor 2', role: 'Financial Advisor', status: 'Applied', blocker: '', dateAdded: '2024-04-12', expectedStart: '2024-04-20', notes: '' },
-  { company: 'Vetto AI', name: 'Financial Advisor 3', role: 'Financial Advisor', status: 'Waitlisted', blocker: 'Availability', dateAdded: '2024-04-11', expectedStart: '', notes: '' },
-  { company: 'Datasaur.ai (JPMC)', name: 'Finance Expert 1', role: 'Financial Transcription', status: 'Screening', blocker: '', dateAdded: '2024-04-12', expectedStart: '', notes: '' },
-  { company: 'Datasaur.ai (JPMC)', name: 'Finance Expert 2', role: 'Financial Transcription', status: 'Applied', blocker: '', dateAdded: '2024-04-12', expectedStart: '', notes: '' },
-  { company: 'Datasaur.ai (JPMC)', name: 'Finance Expert 3', role: 'Financial Transcription', status: 'Applied', blocker: '', dateAdded: '2024-04-12', expectedStart: '', notes: '' },
-  { company: 'Datasaur.ai (JPMC)', name: 'Finance Expert 4', role: 'Financial Transcription', status: 'Applied', blocker: '', dateAdded: '2024-04-12', expectedStart: '', notes: '' },
-  { company: 'Datasaur.ai (JPMC)', name: 'Finance Expert 5', role: 'Financial Transcription', status: 'Applied', blocker: '', dateAdded: '2024-04-12', expectedStart: '', notes: '' },
-];
+const SAMPLE_TALENT = {
+  'Vetto AI': [
+    { name: 'Engineer 1', role: 'Software Engineer', status: 'Onboarded', blocker: '', dateAdded: '2024-04-01', expectedStart: '2024-04-01', notes: 'LLM training — coding track' },
+    { name: 'Engineer 2', role: 'Software Engineer', status: 'Onboarded', blocker: '', dateAdded: '2024-04-01', expectedStart: '2024-04-01', notes: 'LLM training — coding track' },
+    { name: 'Engineer 3', role: 'Software Engineer', status: 'Onboarded', blocker: '', dateAdded: '2024-04-01', expectedStart: '2024-04-01', notes: '' },
+    { name: 'Engineer 4', role: 'Software Engineer', status: 'Onboarded', blocker: '', dateAdded: '2024-04-01', expectedStart: '2024-04-01', notes: '' },
+    { name: 'Engineer 5', role: 'Software Engineer', status: 'Onboarded', blocker: '', dateAdded: '2024-04-01', expectedStart: '2024-04-01', notes: '' },
+    { name: 'Project Lead A', role: 'Project Lead - Coding', status: 'Screening', blocker: '', dateAdded: '2024-04-10', expectedStart: '2024-04-17', notes: '' },
+    { name: 'Project Lead B', role: 'Project Lead - Finance', status: 'Screening', blocker: '', dateAdded: '2024-04-10', expectedStart: '2024-04-17', notes: '' },
+    { name: 'Financial Advisor 1', role: 'Financial Advisor', status: 'Applied', blocker: '', dateAdded: '2024-04-12', expectedStart: '2024-04-20', notes: 'Sourcing batch 1 of 20' },
+    { name: 'Financial Advisor 2', role: 'Financial Advisor', status: 'Applied', blocker: '', dateAdded: '2024-04-12', expectedStart: '2024-04-20', notes: '' },
+    { name: 'Financial Advisor 3', role: 'Financial Advisor', status: 'Waitlisted', blocker: 'Availability', dateAdded: '2024-04-11', expectedStart: '', notes: '' },
+  ],
+  'Datasaur.ai (JPMC)': [
+    { name: 'Finance Expert 1', role: 'Financial Transcription', status: 'Screening', blocker: '', dateAdded: '2024-04-12', expectedStart: '', notes: '' },
+    { name: 'Finance Expert 2', role: 'Financial Transcription', status: 'Applied', blocker: '', dateAdded: '2024-04-12', expectedStart: '', notes: '' },
+    { name: 'Finance Expert 3', role: 'Financial Transcription', status: 'Applied', blocker: '', dateAdded: '2024-04-12', expectedStart: '', notes: '' },
+    { name: 'Finance Expert 4', role: 'Financial Transcription', status: 'Applied', blocker: '', dateAdded: '2024-04-12', expectedStart: '', notes: '' },
+    { name: 'Finance Expert 5', role: 'Financial Transcription', status: 'Applied', blocker: '', dateAdded: '2024-04-12', expectedStart: '', notes: '' },
+  ],
+};
 
 // ══════════════════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════════════════
 let companies = [];
-let talent = [];
+let talentByCompany = {};
 let currentFilter = 'all';
 
 // ══════════════════════════════════════════════════════════════
@@ -566,14 +571,13 @@ function mapEngagement(raw) {
 
 function mapTalent(raw) {
   return {
-    company:       raw['Company']       || '',
-    name:          raw['Name']          || '',
-    role:          raw['Role']          || '',
-    status:        raw['Status']        || '',
-    blocker:       raw['Blocker']       || '',
-    dateAdded:     raw['Date Added']    || '',
-    expectedStart: raw['Expected Start']|| '',
-    notes:         raw['Notes']        || '',
+    name:          raw['Name']           || '',
+    role:          raw['Role']           || '',
+    status:        raw['Status']         || '',
+    blocker:       raw['Blocker']        || '',
+    dateAdded:     raw['Date Added']     || '',
+    expectedStart: raw['Expected Start'] || '',
+    notes:         raw['Notes']          || '',
   };
 }
 
@@ -588,12 +592,21 @@ function parseNum(v) {
 async function loadData() {
   if (CONFIG.SHEET_ID) {
     try {
-      const [engRaw, talRaw] = await Promise.all([
-        fetchGviz(CONFIG.ENGAGEMENTS_SHEET),
-        fetchGviz(CONFIG.TALENT_SHEET).catch(() => []),
-      ]);
+      const engRaw = await fetchGviz(CONFIG.ENGAGEMENTS_SHEET);
       companies = engRaw.map(mapEngagement).filter(c => c.name);
-      talent    = talRaw.map(mapTalent).filter(t => t.company);
+
+      // Fetch each company's own sheet in parallel; missing sheets resolve to []
+      const results = await Promise.allSettled(
+        companies.map(c => fetchGviz(c.name))
+      );
+      talentByCompany = {};
+      companies.forEach((c, i) => {
+        const r = results[i];
+        talentByCompany[c.name] = r.status === 'fulfilled'
+          ? r.value.map(mapTalent).filter(t => t.name)
+          : [];
+      });
+
       document.getElementById('config-banner').style.display = 'none';
     } catch (e) {
       console.warn('Sheet fetch failed, using sample data', e);
@@ -610,8 +623,8 @@ async function loadData() {
 }
 
 function useSampleData() {
-  companies = SAMPLE_COMPANIES;
-  talent    = SAMPLE_TALENT;
+  companies       = SAMPLE_COMPANIES;
+  talentByCompany = SAMPLE_TALENT;
   document.getElementById('config-banner').style.display = 'flex';
 }
 
@@ -703,7 +716,7 @@ function showDetail(name) {
   const c = companies.find(x => x.name === name);
   if (!c) return;
 
-  const talentRows = talent.filter(t => t.company === name);
+  const talentRows = talentByCompany[name] || [];
   const pct = c.targetTalent > 0 ? Math.round((c.onboarded / c.targetTalent) * 100) : null;
   const remaining = c.targetTalent > 0 ? c.targetTalent - c.onboarded : 0;
 
