@@ -84,6 +84,14 @@
 
     .blocker-tag { display:inline-block; background:#fee2e2; color:#991b1b; font-size:11px; padding:2px 7px; border-radius:4px; }
 
+    /* ── Project tabs ── */
+    .project-tabs { display:flex; gap:2px; border-bottom:2px solid #e2e8f0; margin-bottom:16px; flex-wrap:wrap; }
+    .project-tab { padding:7px 14px; font-size:13px; font-weight:500; color:#64748b; cursor:pointer; border:none; background:none; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all .15s; white-space:nowrap; border-radius:6px 6px 0 0; }
+    .project-tab:hover { color:#0f172a; background:#f8fafc; }
+    .project-tab.active { color:#2563eb; border-bottom-color:#2563eb; font-weight:600; }
+    .project-tab .tab-count { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; background:#e2e8f0; color:#64748b; font-size:10px; font-weight:700; margin-left:5px; }
+    .project-tab.active .tab-count { background:#dbeafe; color:#2563eb; }
+
     /* ── Tooltip ── */
     .tooltip-wrap { position:relative; cursor:default; }
     .tooltip-wrap .tooltip { display:none; position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:#1e293b; color:white; padding:6px 10px; border-radius:6px; font-size:11px; white-space:nowrap; z-index:100; max-width:220px; white-space:normal; text-align:center; pointer-events:none; }
@@ -262,7 +270,8 @@
         <p class="font-medium text-slate-700 mb-1">Engagements tab:</p>
         <div class="bg-slate-50 rounded-lg p-3 text-xs font-mono overflow-x-auto border border-slate-200">Company | Status | Sourcing Required | Sourcing Status | Channel Link | Project Type | Notes | Target Talent | Onboarded | Pending | Risk Level | Risk Reason | Target Date | Ramp Up Plan | Last Updated</div>
         <p class="font-medium text-slate-700 mb-1 mt-3">Each company tab (e.g. "Vetto AI"):</p>
-        <div class="bg-slate-50 rounded-lg p-3 text-xs font-mono overflow-x-auto border border-slate-200"># | Talent | Role | Date Added | Country | Language | Rate | Summary | Email</div>
+        <div class="bg-slate-50 rounded-lg p-3 text-xs font-mono overflow-x-auto border border-slate-200"># | Talent | Role | Project | Date Added | Country | Language | Rate | Summary | Email</div>
+        <p class="text-xs text-slate-500 mt-2">The <strong>Project</strong> column groups talent into tabs (e.g. "SWE", "Financial Advisors", "Terminal Bench"). Leave blank to show all talent in a single list.</p>
         <p class="text-xs text-slate-500 mt-2">Engagements Status values: <code class="bg-slate-100 px-1 rounded">Active</code> <code class="bg-slate-100 px-1 rounded">Contracting</code> <code class="bg-slate-100 px-1 rounded">Proposal</code> <code class="bg-slate-100 px-1 rounded">Sales</code></p>
         <p class="text-xs text-slate-500 mt-1">Risk Level values: <code class="bg-slate-100 px-1 rounded">High</code> <code class="bg-slate-100 px-1 rounded">Medium</code> <code class="bg-slate-100 px-1 rounded">Low</code> <code class="bg-slate-100 px-1 rounded">None</code></p>
       </div>
@@ -492,18 +501,18 @@ const SAMPLE_COMPANIES = [
 
 const SAMPLE_TALENT = {
   'Vetto AI': [
-    { num: 1, talent: 'Alex Johnson',  role: 'Software Engineer',       dateAdded: '2024-04-01', country: 'USA',    language: 'English',           rate: '$85/hr', summary: 'Senior SWE, 8yr exp, Python/ML focus',           email: 'alex.j@email.com' },
-    { num: 2, talent: 'Maria Garcia',  role: 'Software Engineer',       dateAdded: '2024-04-01', country: 'USA',    language: 'English, Spanish',  rate: '$80/hr', summary: 'Full-stack engineer, LLM fine-tuning experience', email: 'maria.g@email.com' },
-    { num: 3, talent: 'James Lee',     role: 'ML Engineer',             dateAdded: '2024-04-01', country: 'Canada', language: 'English',           rate: '$75/hr', summary: 'ML engineer, NLP specialist',                    email: 'james.l@email.com' },
-    { num: 4, talent: 'Priya Patel',   role: 'AI Researcher',           dateAdded: '2024-04-01', country: 'USA',    language: 'English, Hindi',    rate: '$90/hr', summary: 'AI researcher, published LLM papers',            email: 'priya.p@email.com' },
-    { num: 5, talent: 'Tom Chen',      role: 'Software Engineer',       dateAdded: '2024-04-01', country: 'USA',    language: 'English, Mandarin', rate: '$70/hr', summary: 'Backend engineer, data pipeline expert',         email: 'tom.c@email.com' },
-    { num: 6, talent: 'Sarah Kim',     role: 'Project Lead - Finance',  dateAdded: '2024-04-10', country: 'USA',    language: 'English, Korean',   rate: '$95/hr', summary: 'Finance domain expert, 12yr Wall St. exp',       email: 'sarah.k@email.com' },
-    { num: 7, talent: 'David Okafor',  role: 'Financial Advisor',       dateAdded: '2024-04-12', country: 'UK',     language: 'English',           rate: '$80/hr', summary: 'CFA, ex-Goldman Sachs analyst',                  email: 'david.o@email.com' },
+    { num: 1, talent: 'Alex Johnson',  role: 'Software Engineer',    project: 'SWE',                dateAdded: '2024-04-01', country: 'USA',    language: 'English',           rate: '$85/hr', summary: 'Senior SWE, 8yr exp, Python/ML focus',           email: 'alex.j@email.com' },
+    { num: 2, talent: 'Maria Garcia',  role: 'Software Engineer',    project: 'SWE',                dateAdded: '2024-04-01', country: 'USA',    language: 'English, Spanish',  rate: '$80/hr', summary: 'Full-stack engineer, LLM fine-tuning experience', email: 'maria.g@email.com' },
+    { num: 3, talent: 'James Lee',     role: 'ML Engineer',          project: 'SWE',                dateAdded: '2024-04-01', country: 'Canada', language: 'English',           rate: '$75/hr', summary: 'ML engineer, NLP specialist',                    email: 'james.l@email.com' },
+    { num: 4, talent: 'Priya Patel',   role: 'AI Researcher',        project: 'Terminal Bench',     dateAdded: '2024-04-01', country: 'USA',    language: 'English, Hindi',    rate: '$90/hr', summary: 'AI researcher, published LLM papers',            email: 'priya.p@email.com' },
+    { num: 5, talent: 'Tom Chen',      role: 'Backend Engineer',     project: 'Terminal Bench',     dateAdded: '2024-04-01', country: 'USA',    language: 'English, Mandarin', rate: '$70/hr', summary: 'Backend engineer, data pipeline expert',         email: 'tom.c@email.com' },
+    { num: 6, talent: 'Sarah Kim',     role: 'Finance Lead',         project: 'Financial Advisors', dateAdded: '2024-04-10', country: 'USA',    language: 'English, Korean',   rate: '$95/hr', summary: 'Finance domain expert, 12yr Wall St. exp',       email: 'sarah.k@email.com' },
+    { num: 7, talent: 'David Okafor',  role: 'Financial Advisor',    project: 'Financial Advisors', dateAdded: '2024-04-12', country: 'UK',     language: 'English',           rate: '$80/hr', summary: 'CFA, ex-Goldman Sachs analyst',                  email: 'david.o@email.com' },
   ],
   'Datasaur.ai (JPMC)': [
-    { num: 1, talent: 'Rachel Wong',   role: 'Financial Transcription', dateAdded: '2024-04-12', country: 'USA',    language: 'English, Cantonese', rate: '$65/hr', summary: 'Financial transcription, JPMC background',      email: 'rachel.w@email.com' },
-    { num: 2, talent: 'Carlos Rivera', role: 'Financial Transcription', dateAdded: '2024-04-12', country: 'Mexico', language: 'English, Spanish',  rate: '$45/hr', summary: 'Bilingual transcriber, finance terminology exp', email: 'carlos.r@email.com' },
-    { num: 3, talent: 'Nina Petrov',   role: 'Financial Transcription', dateAdded: '2024-04-12', country: 'USA',    language: 'English, Russian',  rate: '$55/hr', summary: 'Ex-banking compliance, transcription background', email: 'nina.p@email.com' },
+    { num: 1, talent: 'Rachel Wong',   role: 'Financial Transcription', project: 'Call Transcription', dateAdded: '2024-04-12', country: 'USA',    language: 'English, Cantonese', rate: '$65/hr', summary: 'Financial transcription, JPMC background',      email: 'rachel.w@email.com' },
+    { num: 2, talent: 'Carlos Rivera', role: 'Financial Transcription', project: 'Call Transcription', dateAdded: '2024-04-12', country: 'Mexico', language: 'English, Spanish',  rate: '$45/hr', summary: 'Bilingual transcriber, finance terminology exp', email: 'carlos.r@email.com' },
+    { num: 3, talent: 'Nina Petrov',   role: 'Financial Transcription', project: 'Call Transcription', dateAdded: '2024-04-12', country: 'USA',    language: 'English, Russian',  rate: '$55/hr', summary: 'Ex-banking compliance, transcription background', email: 'nina.p@email.com' },
   ],
 };
 
@@ -568,6 +577,7 @@ function mapTalent(raw) {
     num:       raw['#']           || '',
     talent:    raw['Talent']      || '',
     role:      raw['Role']        || '',
+    project:   raw['Project']     || '',
     dateAdded: raw['Date Added']  || '',
     country:   raw['Country']     || '',
     language:  raw['Language']    || '',
@@ -716,29 +726,47 @@ function showDetail(name) {
   const pct = c.targetTalent > 0 ? Math.round((c.onboarded / c.targetTalent) * 100) : null;
   const remaining = c.targetTalent > 0 ? c.targetTalent - c.onboarded : 0;
 
-  const talentTableHTML = talentRows.length
-    ? `<table class="talent-table">
-        <thead>
-          <tr>
-            <th>#</th><th>Talent</th><th>Role</th><th>Date Added</th><th>Country</th><th>Language</th><th>Rate</th><th>Summary</th><th>Email</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${talentRows.map((t, i) => `
-            <tr>
-              <td class="text-slate-400 text-xs">${escHtml(String(t.num || i + 1))}</td>
-              <td class="font-medium text-slate-800">${escHtml(t.talent)}</td>
-              <td class="text-slate-600 text-xs">${escHtml(t.role)}</td>
-              <td class="text-slate-500 text-xs whitespace-nowrap">${formatDate(t.dateAdded)}</td>
-              <td class="text-slate-600 text-xs">${escHtml(t.country)}</td>
-              <td class="text-slate-600 text-xs">${escHtml(t.language)}</td>
-              <td class="text-slate-700 text-xs font-medium whitespace-nowrap">${escHtml(t.rate)}</td>
-              <td class="text-slate-500 text-xs">${escHtml(t.summary)}</td>
-              <td class="text-xs">${t.email ? `<a href="mailto:${escHtml(t.email)}" class="text-blue-600 hover:underline">${escHtml(t.email)}</a>` : '<span class="text-slate-300">—</span>'}</td>
-            </tr>`).join('')}
-        </tbody>
-      </table>`
-    : `<p class="text-slate-400 text-sm">No talent entries yet. Add rows to the <strong>${escHtml(c.name)}</strong> sheet tab.</p>`;
+  // Group talent by project
+  const projects = [...new Set(talentRows.map(t => t.project || 'Unassigned'))];
+  const byProject = {};
+  projects.forEach(p => { byProject[p] = talentRows.filter(t => (t.project || 'Unassigned') === p); });
+
+  function talentTableFor(rows) {
+    if (!rows.length) return `<p class="text-slate-400 text-sm">No talent in this project yet.</p>`;
+    return `<table class="talent-table">
+      <thead><tr>
+        <th>#</th><th>Talent</th><th>Role</th><th>Date Added</th><th>Country</th><th>Language</th><th>Rate</th><th>Summary</th><th>Email</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map((t, i) => `<tr>
+          <td class="text-slate-400 text-xs">${escHtml(String(t.num || i + 1))}</td>
+          <td class="font-medium text-slate-800">${escHtml(t.talent)}</td>
+          <td class="text-slate-600 text-xs">${escHtml(t.role)}</td>
+          <td class="text-slate-500 text-xs whitespace-nowrap">${formatDate(t.dateAdded)}</td>
+          <td class="text-slate-600 text-xs">${escHtml(t.country)}</td>
+          <td class="text-slate-600 text-xs">${escHtml(t.language)}</td>
+          <td class="text-slate-700 text-xs font-medium whitespace-nowrap">${escHtml(t.rate)}</td>
+          <td class="text-slate-500 text-xs">${escHtml(t.summary)}</td>
+          <td class="text-xs">${t.email ? `<a href="mailto:${escHtml(t.email)}" class="text-blue-600 hover:underline">${escHtml(t.email)}</a>` : '<span class="text-slate-300">—</span>'}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  const talentSectionHTML = talentRows.length === 0
+    ? `<p class="text-slate-400 text-sm">No talent entries yet. Add rows to the <strong>${escHtml(c.name)}</strong> sheet tab.</p>`
+    : projects.length === 1 && projects[0] === 'Unassigned'
+      ? talentTableFor(talentRows)
+      : `<div class="project-tabs">
+          ${projects.map((p, i) => `
+            <button class="project-tab ${i === 0 ? 'active' : ''}" onclick="switchProjectTab(this, '${escHtml(p).replace(/'/g, "\\'")}')">
+              ${escHtml(p)}<span class="tab-count">${byProject[p].length}</span>
+            </button>`).join('')}
+        </div>
+        ${projects.map((p, i) => `
+          <div class="project-panel" data-project="${escHtml(p)}" style="${i !== 0 ? 'display:none' : ''}">
+            ${talentTableFor(byProject[p])}
+          </div>`).join('')}`;
 
   document.getElementById('detail-content').innerHTML = `
     <!-- Header -->
@@ -836,9 +864,9 @@ function showDetail(name) {
     <div class="detail-section">
       <div class="flex items-center justify-between mb-4">
         <h3 style="margin:0">Talent Pipeline</h3>
-        <span class="text-xs text-slate-400">${talentRows.length} ${talentRows.length === 1 ? 'person' : 'people'}</span>
+        <span class="text-xs text-slate-400">${talentRows.length} ${talentRows.length === 1 ? 'person' : 'people'} · ${projects.length} ${projects.length === 1 ? 'project' : 'projects'}</span>
       </div>
-      ${talentTableHTML}
+      ${talentSectionHTML}
     </div>
 
     <!-- Sourcing Info -->
@@ -945,6 +973,14 @@ function escHtml(str) {
 // ══════════════════════════════════════════════════════════════
 // FILTER
 // ══════════════════════════════════════════════════════════════
+function switchProjectTab(btn, project) {
+  const section = btn.closest('.detail-section');
+  section.querySelectorAll('.project-tab').forEach(t => t.classList.remove('active'));
+  section.querySelectorAll('.project-panel').forEach(p => p.style.display = 'none');
+  btn.classList.add('active');
+  section.querySelector(`.project-panel[data-project="${project}"]`).style.display = '';
+}
+
 function setFilter(filter, btn) {
   currentFilter = filter;
   document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
