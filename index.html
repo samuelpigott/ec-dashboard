@@ -262,7 +262,7 @@
         <p class="font-medium text-slate-700 mb-1">Engagements tab:</p>
         <div class="bg-slate-50 rounded-lg p-3 text-xs font-mono overflow-x-auto border border-slate-200">Company | Status | Sourcing Required | Sourcing Status | Channel Link | Project Type | Notes | Target Talent | Onboarded | Pending | Risk Level | Risk Reason | Target Date | Ramp Up Plan | Last Updated</div>
         <p class="font-medium text-slate-700 mb-1 mt-3">Each company tab (e.g. "Vetto AI"):</p>
-        <div class="bg-slate-50 rounded-lg p-3 text-xs font-mono overflow-x-auto border border-slate-200"># | Talent | Country | Language | Rate | Summary | Email</div>
+        <div class="bg-slate-50 rounded-lg p-3 text-xs font-mono overflow-x-auto border border-slate-200"># | Talent | Role | Date Added | Country | Language | Rate | Summary | Email</div>
         <p class="text-xs text-slate-500 mt-2">Engagements Status values: <code class="bg-slate-100 px-1 rounded">Active</code> <code class="bg-slate-100 px-1 rounded">Contracting</code> <code class="bg-slate-100 px-1 rounded">Proposal</code> <code class="bg-slate-100 px-1 rounded">Sales</code></p>
         <p class="text-xs text-slate-500 mt-1">Risk Level values: <code class="bg-slate-100 px-1 rounded">High</code> <code class="bg-slate-100 px-1 rounded">Medium</code> <code class="bg-slate-100 px-1 rounded">Low</code> <code class="bg-slate-100 px-1 rounded">None</code></p>
       </div>
@@ -492,18 +492,18 @@ const SAMPLE_COMPANIES = [
 
 const SAMPLE_TALENT = {
   'Vetto AI': [
-    { num: 1, talent: 'Alex Johnson',  country: 'USA',    language: 'English',          rate: '$85/hr',  summary: 'Senior SWE, 8yr exp, Python/ML focus',           email: 'alex.j@email.com' },
-    { num: 2, talent: 'Maria Garcia',  country: 'USA',    language: 'English, Spanish', rate: '$80/hr',  summary: 'Full-stack engineer, LLM fine-tuning experience', email: 'maria.g@email.com' },
-    { num: 3, talent: 'James Lee',     country: 'Canada', language: 'English',          rate: '$75/hr',  summary: 'ML engineer, NLP specialist',                    email: 'james.l@email.com' },
-    { num: 4, talent: 'Priya Patel',   country: 'USA',    language: 'English, Hindi',   rate: '$90/hr',  summary: 'AI researcher, published LLM papers',            email: 'priya.p@email.com' },
-    { num: 5, talent: 'Tom Chen',      country: 'USA',    language: 'English, Mandarin',rate: '$70/hr',  summary: 'Backend engineer, data pipeline expert',         email: 'tom.c@email.com' },
-    { num: 6, talent: 'Sarah Kim',     country: 'USA',    language: 'English, Korean',  rate: '$95/hr',  summary: 'Finance domain expert, 12yr Wall St. exp',       email: 'sarah.k@email.com' },
-    { num: 7, talent: 'David Okafor',  country: 'UK',     language: 'English',          rate: '$80/hr',  summary: 'CFA, ex-Goldman Sachs analyst',                  email: 'david.o@email.com' },
+    { num: 1, talent: 'Alex Johnson',  role: 'Software Engineer',       dateAdded: '2024-04-01', country: 'USA',    language: 'English',           rate: '$85/hr', summary: 'Senior SWE, 8yr exp, Python/ML focus',           email: 'alex.j@email.com' },
+    { num: 2, talent: 'Maria Garcia',  role: 'Software Engineer',       dateAdded: '2024-04-01', country: 'USA',    language: 'English, Spanish',  rate: '$80/hr', summary: 'Full-stack engineer, LLM fine-tuning experience', email: 'maria.g@email.com' },
+    { num: 3, talent: 'James Lee',     role: 'ML Engineer',             dateAdded: '2024-04-01', country: 'Canada', language: 'English',           rate: '$75/hr', summary: 'ML engineer, NLP specialist',                    email: 'james.l@email.com' },
+    { num: 4, talent: 'Priya Patel',   role: 'AI Researcher',           dateAdded: '2024-04-01', country: 'USA',    language: 'English, Hindi',    rate: '$90/hr', summary: 'AI researcher, published LLM papers',            email: 'priya.p@email.com' },
+    { num: 5, talent: 'Tom Chen',      role: 'Software Engineer',       dateAdded: '2024-04-01', country: 'USA',    language: 'English, Mandarin', rate: '$70/hr', summary: 'Backend engineer, data pipeline expert',         email: 'tom.c@email.com' },
+    { num: 6, talent: 'Sarah Kim',     role: 'Project Lead - Finance',  dateAdded: '2024-04-10', country: 'USA',    language: 'English, Korean',   rate: '$95/hr', summary: 'Finance domain expert, 12yr Wall St. exp',       email: 'sarah.k@email.com' },
+    { num: 7, talent: 'David Okafor',  role: 'Financial Advisor',       dateAdded: '2024-04-12', country: 'UK',     language: 'English',           rate: '$80/hr', summary: 'CFA, ex-Goldman Sachs analyst',                  email: 'david.o@email.com' },
   ],
   'Datasaur.ai (JPMC)': [
-    { num: 1, talent: 'Rachel Wong',   country: 'USA',    language: 'English, Cantonese',rate: '$65/hr', summary: 'Financial transcription, JPMC background',       email: 'rachel.w@email.com' },
-    { num: 2, talent: 'Carlos Rivera', country: 'Mexico', language: 'English, Spanish', rate: '$45/hr',  summary: 'Bilingual transcriber, finance terminology exp',  email: 'carlos.r@email.com' },
-    { num: 3, talent: 'Nina Petrov',   country: 'USA',    language: 'English, Russian', rate: '$55/hr',  summary: 'Ex-banking compliance, transcription background',  email: 'nina.p@email.com' },
+    { num: 1, talent: 'Rachel Wong',   role: 'Financial Transcription', dateAdded: '2024-04-12', country: 'USA',    language: 'English, Cantonese', rate: '$65/hr', summary: 'Financial transcription, JPMC background',      email: 'rachel.w@email.com' },
+    { num: 2, talent: 'Carlos Rivera', role: 'Financial Transcription', dateAdded: '2024-04-12', country: 'Mexico', language: 'English, Spanish',  rate: '$45/hr', summary: 'Bilingual transcriber, finance terminology exp', email: 'carlos.r@email.com' },
+    { num: 3, talent: 'Nina Petrov',   role: 'Financial Transcription', dateAdded: '2024-04-12', country: 'USA',    language: 'English, Russian',  rate: '$55/hr', summary: 'Ex-banking compliance, transcription background', email: 'nina.p@email.com' },
   ],
 };
 
@@ -565,13 +565,15 @@ function mapEngagement(raw) {
 
 function mapTalent(raw) {
   return {
-    num:      raw['#']        || '',
-    talent:   raw['Talent']   || '',
-    country:  raw['Country']  || '',
-    language: raw['Language'] || '',
-    rate:     raw['Rate']     || '',
-    summary:  raw['Summary']  || '',
-    email:    raw['Email']    || '',
+    num:       raw['#']           || '',
+    talent:    raw['Talent']      || '',
+    role:      raw['Role']        || '',
+    dateAdded: raw['Date Added']  || '',
+    country:   raw['Country']     || '',
+    language:  raw['Language']    || '',
+    rate:      raw['Rate']        || '',
+    summary:   raw['Summary']     || '',
+    email:     raw['Email']       || '',
   };
 }
 
@@ -718,7 +720,7 @@ function showDetail(name) {
     ? `<table class="talent-table">
         <thead>
           <tr>
-            <th>#</th><th>Talent</th><th>Country</th><th>Language</th><th>Rate</th><th>Summary</th><th>Email</th>
+            <th>#</th><th>Talent</th><th>Role</th><th>Date Added</th><th>Country</th><th>Language</th><th>Rate</th><th>Summary</th><th>Email</th>
           </tr>
         </thead>
         <tbody>
@@ -726,6 +728,8 @@ function showDetail(name) {
             <tr>
               <td class="text-slate-400 text-xs">${escHtml(String(t.num || i + 1))}</td>
               <td class="font-medium text-slate-800">${escHtml(t.talent)}</td>
+              <td class="text-slate-600 text-xs">${escHtml(t.role)}</td>
+              <td class="text-slate-500 text-xs whitespace-nowrap">${formatDate(t.dateAdded)}</td>
               <td class="text-slate-600 text-xs">${escHtml(t.country)}</td>
               <td class="text-slate-600 text-xs">${escHtml(t.language)}</td>
               <td class="text-slate-700 text-xs font-medium whitespace-nowrap">${escHtml(t.rate)}</td>
