@@ -3,427 +3,1063 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LinguaTest — Language Transcription Assessment</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <title>EC Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     :root {
-      --blue: #204ECF;
-      --navy: #262D3D;
-      --white: #FFFFFF;
-      --gray-bg: #F5F7FA;
-      --muted: #6B7280;
-      --blue-hover: #1A3FA8;
-      --blue-light: #EEF2FF;
+      --status-active:      #15803d;
+      --status-contracting: #b45309;
+      --status-proposal:    #1d4ed8;
+      --status-sales:       #0369a1;
     }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      color: var(--navy);
-      font-size: 16px;
-      line-height: 1.6;
-    }
+    * { box-sizing: border-box; }
 
-    /* ── Nav ── */
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: var(--white);
-      border-bottom: 1px solid #E5E7EB;
-      padding: 0 2rem;
-      height: 64px;
-      display: flex;
-      align-items: center;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; margin: 0; }
 
-    .nav-logo {
-      font-size: 1.375rem;
-      font-weight: 800;
-      color: var(--blue);
-      letter-spacing: -0.02em;
-      text-decoration: none;
-    }
+    /* ── Status badges ── */
+    .badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:600; letter-spacing:.3px; white-space:nowrap; }
+    .badge-active      { background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; }
+    .badge-contracting { background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
+    .badge-proposal    { background:#dbeafe; color:#1e40af; border:1px solid #bfdbfe; }
+    .badge-sales       { background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; }
+    .badge-unknown     { background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0; }
 
-    /* ── Hero ── */
-    .hero {
-      background: var(--navy);
-      padding: 96px 2rem;
-      text-align: center;
-    }
+    /* ── Risk badges ── */
+    .risk-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .risk-high   { color:#dc2626; } .risk-dot-high   { background:#dc2626; }
+    .risk-medium { color:#d97706; } .risk-dot-medium { background:#d97706; }
+    .risk-low    { color:#16a34a; } .risk-dot-low    { background:#16a34a; }
+    .risk-none   { color:#94a3b8; } .risk-dot-none   { background:#94a3b8; }
 
-    .hero h1 {
-      font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 800;
-      color: var(--white);
-      letter-spacing: -0.03em;
-      line-height: 1.2;
-      max-width: 780px;
-      margin: 0 auto 1.25rem;
-    }
+    /* ── Progress bar ── */
+    .progress-bar { height:6px; border-radius:3px; background:#e2e8f0; overflow:hidden; }
+    .progress-fill { height:100%; border-radius:3px; transition:width .4s ease; }
+    .progress-fill.green  { background:#22c55e; }
+    .progress-fill.yellow { background:#eab308; }
+    .progress-fill.red    { background:#ef4444; }
 
-    .hero p {
-      font-size: 1.2rem;
-      color: #9CA3AF;
-      max-width: 620px;
-      margin: 0 auto;
-      line-height: 1.75;
-    }
+    /* ── Table ── */
+    .dashboard-table { border-collapse:collapse; width:100%; }
+    .dashboard-table th { background:#f8fafc; font-size:11px; font-weight:600; letter-spacing:.6px; text-transform:uppercase; color:#64748b; padding:10px 14px; border-bottom:2px solid #e2e8f0; text-align:left; white-space:nowrap; }
+    .dashboard-table td { padding:13px 14px; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
+    .dashboard-table tr:last-child td { border-bottom:none; }
+    .dashboard-table tr:hover td { background:#f8fafc; }
+    .row-clickable { cursor:pointer; }
+    .row-clickable:hover td { background:#f0f9ff !important; }
 
-    /* ── Shared section layout ── */
-    .section {
-      padding: 80px 2rem;
-    }
+    /* ── Company name link ── */
+    .company-name { font-weight:600; color:#0f172a; font-size:14px; }
+    .company-subtype { font-size:11px; color:#94a3b8; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; }
 
-    .section-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
+    /* ── Stat cards ── */
+    .stat-card { background:white; border-radius:12px; padding:20px; border:1px solid #e2e8f0; flex:1; min-width:150px; }
+    .stat-value { font-size:28px; font-weight:700; color:#0f172a; line-height:1; }
+    .stat-label { font-size:12px; color:#64748b; margin-top:4px; font-weight:500; }
+    .stat-sub   { font-size:11px; color:#94a3b8; margin-top:2px; }
 
-    .section-label {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--blue);
-      margin-bottom: 0.75rem;
-    }
+    /* ── Detail view ── */
+    #detail-view { display:none; }
+    #main-view   { display:block; }
 
-    .section h2 {
-      font-size: clamp(1.5rem, 3vw, 2rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      line-height: 1.25;
-      margin-bottom: 1rem;
-    }
+    .detail-section { background:white; border-radius:12px; border:1px solid #e2e8f0; padding:24px; margin-bottom:16px; }
+    .detail-section h3 { font-size:13px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:.5px; margin:0 0 16px 0; }
+    .kpi-card { background:#f8fafc; border-radius:8px; padding:16px; flex:1; border:1px solid #e2e8f0; }
+    .kpi-value { font-size:24px; font-weight:700; color:#0f172a; }
+    .kpi-label { font-size:11px; color:#94a3b8; margin-top:2px; font-weight:500; }
 
-    .section p.body-copy {
-      font-size: 1.0625rem;
-      color: var(--muted);
-      max-width: 600px;
-      line-height: 1.7;
-      margin-bottom: 2.5rem;
-    }
+    .talent-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .talent-table th { background:#f8fafc; padding:8px 12px; text-align:left; font-size:11px; font-weight:600; color:#64748b; letter-spacing:.4px; text-transform:uppercase; border-bottom:1px solid #e2e8f0; }
+    .talent-table td { padding:10px 12px; border-bottom:1px solid #f8fafc; color:#374151; }
+    .talent-table tr:last-child td { border-bottom:none; }
 
-    /* ── How It Works ── */
-    .how-bg {
-      background: var(--white);
-    }
+    /* ── Talent status pills ── */
+    .tstatus { padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; }
+    .tstatus-onboarded  { background:#dcfce7; color:#15803d; }
+    .tstatus-screening  { background:#dbeafe; color:#1e40af; }
+    .tstatus-applied    { background:#f3e8ff; color:#6d28d9; }
+    .tstatus-waitlisted { background:#fef3c7; color:#92400e; }
+    .tstatus-hold       { background:#fef3c7; color:#92400e; }
+    .tstatus-rejected   { background:#fee2e2; color:#991b1b; }
 
-    .steps-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      margin-top: 2.5rem;
-    }
+    .blocker-tag { display:inline-block; background:#fee2e2; color:#991b1b; font-size:11px; padding:2px 7px; border-radius:4px; }
 
-    .step-card {
-      background: var(--gray-bg);
-      border-radius: 8px;
-      padding: 2rem 1.75rem;
-    }
+    /* ── Project tabs ── */
+    .project-tabs { display:flex; gap:2px; border-bottom:2px solid #e2e8f0; margin-bottom:16px; flex-wrap:wrap; }
+    .project-tab { padding:7px 14px; font-size:13px; font-weight:500; color:#64748b; cursor:pointer; border:none; background:none; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all .15s; white-space:nowrap; border-radius:6px 6px 0 0; }
+    .project-tab:hover { color:#0f172a; background:#f8fafc; }
+    .project-tab.active { color:#2563eb; border-bottom-color:#2563eb; font-weight:600; }
+    .project-tab .tab-count { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; background:#e2e8f0; color:#64748b; font-size:10px; font-weight:700; margin-left:5px; }
+    .project-tab.active .tab-count { background:#dbeafe; color:#2563eb; }
 
-    .step-icon {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-      display: block;
-    }
+    /* ── Tooltip ── */
+    .tooltip-wrap { position:relative; cursor:default; }
+    .tooltip-wrap .tooltip { display:none; position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:#1e293b; color:white; padding:6px 10px; border-radius:6px; font-size:11px; white-space:nowrap; z-index:100; max-width:220px; white-space:normal; text-align:center; pointer-events:none; }
+    .tooltip-wrap:hover .tooltip { display:block; }
 
-    .step-card h3 {
-      font-size: 1.0625rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      color: var(--navy);
-    }
+    /* ── Channel link ── */
+    .channel-btn { display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:6px; background:#f1f5f9; border:1px solid #e2e8f0; color:#475569; font-size:11px; font-weight:500; text-decoration:none; transition:all .15s; }
+    .channel-btn:hover { background:#e2e8f0; color:#0f172a; }
 
-    .step-card p {
-      font-size: 0.9375rem;
-      color: var(--muted);
-      line-height: 1.6;
-    }
+    /* ── Filter tabs ── */
+    .filter-tab { padding:6px 14px; border-radius:6px; font-size:13px; font-weight:500; cursor:pointer; border:none; background:transparent; color:#64748b; transition:all .15s; }
+    .filter-tab.active { background:white; color:#0f172a; box-shadow:0 1px 3px rgba(0,0,0,.1); }
+    .filter-tab:hover:not(.active) { background:#e2e8f0; color:#374151; }
 
-    /* ── Language Selection ── */
-    .lang-bg {
-      background: var(--gray-bg);
-    }
+    /* ── Animations ── */
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .fade-in { animation:fadeIn .2s ease; }
 
-    .lang-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-    }
+    /* ── Scrollable table wrapper ── */
+    .table-wrap { overflow-x:auto; border-radius:12px; border:1px solid #e2e8f0; background:white; }
 
-    .lang-card {
-      background: var(--white);
-      border-radius: 8px;
-      border-left: 4px solid var(--blue);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-      padding: 1.125rem 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      cursor: pointer;
-      text-decoration: none;
-      color: inherit;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.2s ease;
-      outline: 2px solid transparent;
-    }
+    /* ── Config banner ── */
+    #config-banner { background:#fef3c7; border:1px solid #fde68a; border-radius:8px; padding:10px 16px; margin-bottom:16px; font-size:13px; color:#92400e; display:flex; align-items:center; gap:8px; }
 
-    .lang-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(32,78,207,0.12);
-      outline: 2px solid var(--blue);
-    }
-
-    .lang-flag {
-      font-size: 1.625rem;
-      flex-shrink: 0;
-    }
-
-    .lang-name {
-      font-size: 1.0625rem;
-      font-weight: 700;
-      color: var(--navy);
-      flex: 1;
-    }
-
-    .lang-arrow {
-      color: var(--blue);
-      font-size: 1.125rem;
-      flex-shrink: 0;
-      transition: transform 0.2s ease;
-    }
-
-    .lang-card:hover .lang-arrow {
-      transform: translateX(3px);
-    }
-
-    /* ── Before You Begin ── */
-    .tips-bg {
-      background: var(--white);
-    }
-
-    .tips-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.25rem;
-      margin-top: 2.5rem;
-    }
-
-    .tip-box {
-      background: var(--blue-light);
-      border-radius: 8px;
-      padding: 1.5rem 1.75rem;
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-    }
-
-    .tip-icon {
-      font-size: 1.5rem;
-      flex-shrink: 0;
-      margin-top: 0.1rem;
-    }
-
-    .tip-content h3 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 0.35rem;
-    }
-
-    .tip-content p {
-      font-size: 0.9375rem;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    /* ── Footer ── */
-    footer {
-      background: var(--navy);
-      padding: 2.5rem 2rem;
-      text-align: center;
-    }
-
-    footer p {
-      color: #D1D5DB;
-      font-size: 0.9375rem;
-      line-height: 1.7;
-    }
-
-    footer .footer-muted {
-      color: var(--muted);
-      font-size: 0.875rem;
-      margin-top: 0.35rem;
-    }
-
-    /* ── Responsive ── */
-    @media (max-width: 900px) {
-      .steps-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .lang-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .tips-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 540px) {
-      .hero {
-        padding: 64px 1.25rem;
-      }
-
-      .section {
-        padding: 60px 1.25rem;
-      }
-
-      .lang-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+    .notes-preview { max-width:280px; font-size:12px; color:#64748b; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-height:1.4; }
   </style>
 </head>
 <body>
 
-  <!-- Nav -->
-  <nav>
-    <a href="#" class="nav-logo">LinguaTest</a>
-  </nav>
+<!-- ══════════════════════════════════════════
+     TOP NAV
+══════════════════════════════════════════ -->
+<header class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shadow-lg">
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center font-bold text-sm">EC</div>
+    <div>
+      <span class="font-semibold text-lg tracking-tight">EC Dashboard</span>
+      <span class="text-slate-400 text-xs ml-3">Engagement & Talent Tracker</span>
+    </div>
+  </div>
+  <div class="flex items-center gap-4 text-sm text-slate-400">
+    <span id="last-updated"></span>
+    <button onclick="refreshData()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors">
+      ↻ Refresh
+    </button>
+    <button onclick="toggleConfig()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors">
+      ⚙ Config
+    </button>
+  </div>
+</header>
 
-  <!-- Hero -->
-  <section class="hero">
-    <h1>Welcome to the Language Transcription Assessment</h1>
-    <p>Select your language below to begin your transcription test. Each test takes approximately 20–30 minutes and evaluates your listening accuracy, formatting, and written language skills.</p>
-  </section>
+<!-- ══════════════════════════════════════════
+     CONFIG PANEL (hidden by default)
+══════════════════════════════════════════ -->
+<div id="config-panel" style="display:none;" class="bg-slate-800 border-b border-slate-700 px-6 py-4">
+  <div class="max-w-3xl">
+    <p class="text-slate-300 text-sm font-semibold mb-3">Google Sheets Integration</p>
+    <div class="flex gap-3 items-end flex-wrap">
+      <div class="flex-1 min-w-60">
+        <label class="text-xs text-slate-400 block mb-1">Google Sheet ID</label>
+        <input id="sheet-id-input" type="text" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"
+          class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500" />
+      </div>
+      <button onclick="saveConfig()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors">
+        Save & Reload
+      </button>
+      <button onclick="testConnection()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-medium rounded-lg transition-colors">
+        Test Connection
+      </button>
+      <button onclick="showSetupGuide()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-medium rounded-lg transition-colors">
+        Setup Guide
+      </button>
+    </div>
+    <p class="text-slate-500 text-xs mt-2">Get the Sheet ID from the URL: docs.google.com/spreadsheets/d/<strong class="text-slate-400">SHEET_ID</strong>/edit</p>
+    <div id="test-result" class="mt-3 text-xs rounded-lg px-3 py-2 hidden"></div>
+  </div>
+</div>
 
-  <!-- How It Works -->
-  <section class="section how-bg">
-    <div class="section-inner">
-      <span class="section-label">The Process</span>
-      <h2>Three simple steps to get started</h2>
-      <div class="steps-grid">
-        <div class="step-card">
-          <span class="step-icon">🌐</span>
-          <h3>Choose Your Language</h3>
-          <p>Select the language you are being evaluated in from the list below.</p>
-        </div>
-        <div class="step-card">
-          <span class="step-icon">📝</span>
-          <h3>Complete the Test Form</h3>
-          <p>You will be redirected to a secure Google Form for your specific language test.</p>
-        </div>
-        <div class="step-card">
-          <span class="step-icon">✅</span>
-          <h3>Submit and You're Done</h3>
-          <p>Once submitted, your responses will be reviewed by our team.</p>
+<!-- ══════════════════════════════════════════
+     MAIN VIEW
+══════════════════════════════════════════ -->
+<div id="main-view" class="max-w-screen-2xl mx-auto px-6 py-6 fade-in">
+
+  <!-- Config banner (shown when no sheet ID or on error) -->
+  <div id="config-banner" style="display:none;">
+    <span id="config-banner-icon">📋</span>
+    <span id="config-banner-msg">Using <strong>sample data</strong>. Enter your Google Sheet ID in Config to sync live data.</span>
+    <button onclick="toggleConfig()" class="ml-auto text-xs underline font-semibold whitespace-nowrap">Configure Sheet →</button>
+  </div>
+
+  <!-- Summary Stats -->
+  <div class="flex gap-4 mb-6 flex-wrap">
+    <div class="stat-card">
+      <div class="stat-value text-green-600" id="stat-active">0</div>
+      <div class="stat-label">Active Engagements</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value text-amber-600" id="stat-contracting">0</div>
+      <div class="stat-label">In Contracting</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value text-blue-600" id="stat-pipeline">0</div>
+      <div class="stat-label">In Pipeline</div>
+      <div class="stat-sub">Proposal + Sales</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value text-slate-800" id="stat-talent-total">0</div>
+      <div class="stat-label">Total Talent Target</div>
+      <div class="stat-sub" id="stat-talent-onboarded"></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value text-red-600" id="stat-risk">0</div>
+      <div class="stat-label">At Risk</div>
+      <div class="stat-sub">High + Medium risk</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex items-center gap-2 mb-4 bg-slate-100 p-1 rounded-lg w-fit flex-wrap">
+    <button class="filter-tab active" data-filter="all" onclick="setFilter('all', this)">All</button>
+    <button class="filter-tab" data-filter="Active" onclick="setFilter('Active', this)">Active</button>
+    <button class="filter-tab" data-filter="Contracting" onclick="setFilter('Contracting', this)">Contracting</button>
+    <button class="filter-tab" data-filter="Proposal" onclick="setFilter('Proposal', this)">Proposal</button>
+    <button class="filter-tab" data-filter="Sales" onclick="setFilter('Sales', this)">Sales</button>
+    <button class="filter-tab" data-filter="risk" onclick="setFilter('risk', this)">⚠ At Risk</button>
+  </div>
+
+  <!-- Main Table -->
+  <div class="table-wrap">
+    <table class="dashboard-table" id="main-table">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Status</th>
+          <th>Talent Progress</th>
+          <th>Risk</th>
+          <th>Next Action / Notes</th>
+          <th>Target Date</th>
+          <th>Channel</th>
+        </tr>
+      </thead>
+      <tbody id="company-rows"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     DETAIL VIEW
+══════════════════════════════════════════ -->
+<div id="detail-view" class="max-w-screen-xl mx-auto px-6 py-6 fade-in">
+  <button onclick="showMain()" class="flex items-center gap-2 text-slate-500 hover:text-slate-900 text-sm font-medium mb-5 transition-colors">
+    ← Back to Dashboard
+  </button>
+  <div id="detail-content"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SETUP GUIDE MODAL
+══════════════════════════════════════════ -->
+<div id="setup-modal" style="display:none;" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold text-slate-900">Google Sheets Setup Guide</h2>
+      <button onclick="document.getElementById('setup-modal').style.display='none'" class="text-slate-400 hover:text-slate-700 text-xl">✕</button>
+    </div>
+    <div class="space-y-5 text-sm text-slate-700">
+      <div>
+        <p class="font-semibold text-slate-900 mb-2">Step 1 — Create your Google Sheet</p>
+        <p>Create a new Google Sheet with one tab per company, plus an <strong>Engagements</strong> tab:</p>
+        <ul class="mt-2 space-y-1 list-disc list-inside text-slate-600">
+          <li><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">Engagements</code> — one row per company (overview)</li>
+          <li><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">Vetto AI</code> — one row per talent for that company</li>
+          <li><code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">Scale AI</code> — same structure, named exactly as in Engagements</li>
+          <li>…one tab per company, named to match the Company column exactly</li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-semibold text-slate-900 mb-2">Step 2 — Add these column headers (Row 1)</p>
+        <p class="font-medium text-slate-700 mb-1">Engagements tab:</p>
+        <div class="bg-slate-50 rounded-lg p-3 text-xs font-mono overflow-x-auto border border-slate-200">Company | Status | Sourcing Required | Sourcing Status | Channel Link | Project Type | Notes | Target Talent | Onboarded | Pending | Risk Level | Risk Reason | Target Date | Ramp Up Plan | Last Updated</div>
+        <p class="font-medium text-slate-700 mb-1 mt-3">Each company tab (e.g. "Vetto AI"):</p>
+        <div class="bg-slate-50 rounded-lg p-3 text-xs font-mono overflow-x-auto border border-slate-200"># | Talent | Email | Role | Project | Date Added | Country | Language | Rate | Summary</div>
+        <p class="text-xs text-slate-500 mt-2">The <strong>Project</strong> column groups talent into tabs (e.g. "SWE", "Financial Advisors", "Terminal Bench"). Leave blank to show all talent in a single list.</p>
+        <p class="text-xs text-slate-500 mt-2">Engagements Status values: <code class="bg-slate-100 px-1 rounded">Active</code> <code class="bg-slate-100 px-1 rounded">Contracting</code> <code class="bg-slate-100 px-1 rounded">Proposal</code> <code class="bg-slate-100 px-1 rounded">Sales</code></p>
+        <p class="text-xs text-slate-500 mt-1">Risk Level values: <code class="bg-slate-100 px-1 rounded">High</code> <code class="bg-slate-100 px-1 rounded">Medium</code> <code class="bg-slate-100 px-1 rounded">Low</code> <code class="bg-slate-100 px-1 rounded">None</code></p>
+      </div>
+      <div>
+        <p class="font-semibold text-slate-900 mb-2">Step 3 — Make the sheet public</p>
+        <p>File → Share → <strong>Publish to web</strong> → Publish (keep default settings)</p>
+      </div>
+      <div>
+        <p class="font-semibold text-slate-900 mb-2">Step 4 — Get your Sheet ID</p>
+        <p>Copy the ID from your sheet URL:</p>
+        <div class="bg-slate-50 rounded-lg p-3 text-xs font-mono border border-slate-200 mt-1">
+          docs.google.com/spreadsheets/d/<span class="bg-yellow-200 px-1 rounded">1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms</span>/edit
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- Language Selection -->
-  <section class="section lang-bg">
-    <div class="section-inner">
-      <span class="section-label">Get Started</span>
-      <h2>Select Your Language</h2>
-      <p class="body-copy">Click on your assigned language to open the corresponding test form. Please only complete the test for the language you have been assigned.</p>
-      <div class="lang-grid" id="lang-grid"></div>
-    </div>
-  </section>
-
-  <!-- Before You Begin -->
-  <section class="section tips-bg">
-    <div class="section-inner">
-      <h2>Before You Begin</h2>
-      <div class="tips-grid">
-        <div class="tip-box">
-          <span class="tip-icon">🎧</span>
-          <div class="tip-content">
-            <h3>Use Headphones if Possible</h3>
-            <p>Audio clarity is important. Headphones will improve your experience.</p>
-          </div>
-        </div>
-        <div class="tip-box">
-          <span class="tip-icon">🤫</span>
-          <div class="tip-content">
-            <h3>Find a Quiet Environment</h3>
-            <p>Listen carefully without interruptions for the most accurate results.</p>
-          </div>
-        </div>
-        <div class="tip-box">
-          <span class="tip-icon">🚫</span>
-          <div class="tip-content">
-            <h3>Do Not Use AI Tools</h3>
-            <p>This is an evaluation of your personal transcription ability. AI assistance is not permitted.</p>
-          </div>
-        </div>
-        <div class="tip-box">
-          <span class="tip-icon">⏱️</span>
-          <div class="tip-content">
-            <h3>Complete in One Session</h3>
-            <p>Please do not close or refresh the form once you have started.</p>
-          </div>
-        </div>
+      <div>
+        <p class="font-semibold text-slate-900 mb-2">Step 5 — Enter the Sheet ID in Config</p>
+        <p>Click the <strong>⚙ Config</strong> button in the top nav, paste your Sheet ID, and click Save & Reload.</p>
       </div>
     </div>
-  </section>
+    <button onclick="document.getElementById('setup-modal').style.display='none'" class="mt-6 w-full py-2.5 bg-slate-900 hover:bg-slate-700 text-white font-medium rounded-lg transition-colors text-sm">
+      Got it, close
+    </button>
+  </div>
+</div>
 
-  <!-- Footer -->
-  <footer>
-    <p>© 2025 LinguaTest. All rights reserved.</p>
-    <p class="footer-muted">Questions? Contact us at assessments@yourdomain.com</p>
-  </footer>
+<script>
+// ══════════════════════════════════════════════════════════════
+// CONFIGURATION
+// ══════════════════════════════════════════════════════════════
+const CONFIG = {
+  SHEET_ID: localStorage.getItem('ec_sheet_id') || '',
+  ENGAGEMENTS_SHEET: 'Engagements',
+};
 
-  <script>
-    // ─────────────────────────────────────────────────────────────
-    // TO UPDATE: Replace each URL below with your actual Google Form link.
-    // Do not change anything else in this file.
-    // ─────────────────────────────────────────────────────────────
-    const languages = [
-      { name: "Catalan",    flag: "🇪🇸", url: "https://forms.google.com/REPLACE_CATALAN" },
-      { name: "Chinese",    flag: "🇨🇳", url: "https://forms.google.com/REPLACE_CHINESE" },
-      { name: "Czech",      flag: "🇨🇿", url: "https://forms.google.com/REPLACE_CZECH" },
-      { name: "Dutch",      flag: "🇳🇱", url: "https://forms.google.com/REPLACE_DUTCH" },
-      { name: "English",    flag: "🇺🇸", url: "https://forms.google.com/REPLACE_ENGLISH" },
-      { name: "French",     flag: "🇫🇷", url: "https://forms.google.com/REPLACE_FRENCH" },
-      { name: "German",     flag: "🇩🇪", url: "https://forms.google.com/REPLACE_GERMAN" },
-      { name: "Hungarian",  flag: "🇭🇺", url: "https://forms.google.com/REPLACE_HUNGARIAN" },
-      { name: "Italian",    flag: "🇮🇹", url: "https://forms.google.com/REPLACE_ITALIAN" },
-      { name: "Polish",     flag: "🇵🇱", url: "https://forms.google.com/REPLACE_POLISH" },
-      { name: "Portuguese", flag: "🇧🇷", url: "https://forms.google.com/REPLACE_PORTUGUESE" },
-      { name: "Russian",    flag: "🇷🇺", url: "https://forms.google.com/REPLACE_RUSSIAN" },
-      { name: "Spanish",    flag: "🇪🇸", url: "https://forms.google.com/REPLACE_SPANISH" },
-      { name: "Thai",       flag: "🇹🇭", url: "https://forms.google.com/REPLACE_THAI" },
-      { name: "Turkish",    flag: "🇹🇷", url: "https://forms.google.com/REPLACE_TURKISH" },
-      { name: "Ukrainian",  flag: "🇺🇦", url: "https://forms.google.com/REPLACE_UKRAINIAN" },
-      { name: "Vietnamese", flag: "🇻🇳", url: "https://forms.google.com/REPLACE_VIETNAMESE" },
-    ];
+// ══════════════════════════════════════════════════════════════
+// SAMPLE DATA  (used when no Google Sheet configured)
+// ══════════════════════════════════════════════════════════════
+const SAMPLE_COMPANIES = [
+  {
+    name: 'Vetto AI',
+    status: 'Active',
+    sourcingRequired: 'Yes',
+    sourcingStatus: 'Active',
+    channelLink: '',
+    projectType: 'Engineers / Financial Experts - LLM Training',
+    notes: 'Kicked off with 5 engineers. Will move to ~20 this week. Sourcing project leads (Coding, Finance, Health). Sourcing 20 financial advisors to kick off this week.',
+    targetTalent: 45,
+    onboarded: 5,
+    pending: 20,
+    riskLevel: 'Medium',
+    riskReason: 'Ramp-up speed needs to accelerate — moving from 5 to 20+ this week, financial advisor sourcing just kicking off.',
+    targetDate: '2024-05-15',
+    rampUpPlan: 'Phase 1: 5 engineers (complete). Phase 2: Scale to 20 engineers this week. Phase 3: Onboard 20 financial advisors. Phase 4: Add project leads (Coding, Finance, Health).',
+    lastUpdated: '2024-04-13',
+  },
+  {
+    name: 'Scale AI',
+    status: 'Proposal',
+    sourcingRequired: 'Yes',
+    sourcingStatus: 'Pending',
+    channelLink: '',
+    projectType: 'Engineers - Agent Training (100s)',
+    notes: 'Call Friday, opened up 2 additional potential projects.',
+    targetTalent: 150,
+    onboarded: 0,
+    pending: 0,
+    riskLevel: 'Low',
+    riskReason: '',
+    targetDate: '',
+    rampUpPlan: '',
+    lastUpdated: '2024-04-13',
+  },
+  {
+    name: 'Leocor Strategies LLC',
+    status: 'Sales',
+    sourcingRequired: 'No',
+    sourcingStatus: '',
+    channelLink: '',
+    projectType: 'TBD',
+    notes: 'Call Friday, NDA next step.',
+    targetTalent: 0,
+    onboarded: 0,
+    pending: 0,
+    riskLevel: 'Low',
+    riskReason: '',
+    targetDate: '',
+    rampUpPlan: '',
+    lastUpdated: '2024-04-13',
+  },
+  {
+    name: 'NewCo - Joint Venture',
+    status: 'Sales',
+    sourcingRequired: 'No',
+    sourcingStatus: '',
+    channelLink: '',
+    projectType: 'TBD',
+    notes: 'Questions due. New questions pending response.',
+    targetTalent: 0,
+    onboarded: 0,
+    pending: 0,
+    riskLevel: 'Medium',
+    riskReason: 'Questions outstanding — no response yet on new questions.',
+    targetDate: '',
+    rampUpPlan: '',
+    lastUpdated: '2024-04-13',
+  },
+  {
+    name: 'Datasaur.ai (JPMC)',
+    status: 'Proposal',
+    sourcingRequired: 'Yes',
+    sourcingStatus: 'Active',
+    channelLink: '',
+    projectType: 'Financial Call Transcription',
+    notes: 'Proposal sent. Sourcing talent now.',
+    targetTalent: 30,
+    onboarded: 0,
+    pending: 5,
+    riskLevel: 'Low',
+    riskReason: '',
+    targetDate: '',
+    rampUpPlan: '',
+    lastUpdated: '2024-04-13',
+  },
+  {
+    name: 'TVLabs.a',
+    status: 'Contracting',
+    sourcingRequired: 'Yes',
+    sourcingStatus: 'On Hold',
+    channelLink: '',
+    projectType: 'Transcribing Movies',
+    notes: 'Waiting on legals.',
+    targetTalent: 20,
+    onboarded: 0,
+    pending: 0,
+    riskLevel: 'High',
+    riskReason: 'Legal review blocking start — contract not yet signed.',
+    targetDate: '',
+    rampUpPlan: '',
+    lastUpdated: '2024-04-13',
+  },
+  {
+    name: 'Uber',
+    status: 'Contracting',
+    sourcingRequired: 'Yes',
+    sourcingStatus: 'On Hold',
+    channelLink: '',
+    projectType: 'TBD',
+    notes: 'Waiting on legal. Sales check-in next week.',
+    targetTalent: 0,
+    onboarded: 0,
+    pending: 0,
+    riskLevel: 'High',
+    riskReason: 'Legal review blocking contract signing. No sourcing can begin until resolved.',
+    targetDate: '',
+    rampUpPlan: '',
+    lastUpdated: '2024-04-13',
+  },
+  {
+    name: 'Huntington Bank',
+    status: 'Proposal',
+    sourcingRequired: 'Yes',
+    sourcingStatus: 'Pending',
+    channelLink: '',
+    projectType: 'Fraud Transactions',
+    notes: 'Meeting in 1 week.',
+    targetTalent: 25,
+    onboarded: 0,
+    pending: 0,
+    riskLevel: 'Low',
+    riskReason: '',
+    targetDate: '',
+    rampUpPlan: '',
+    lastUpdated: '2024-04-13',
+  },
+  {
+    name: 'HubSpot',
+    status: 'Sales',
+    sourcingRequired: 'Yes',
+    sourcingStatus: 'Pending',
+    channelLink: '',
+    projectType: 'Content Creators',
+    notes: 'Reactivated. More info expected this week.',
+    targetTalent: 0,
+    onboarded: 0,
+    pending: 0,
+    riskLevel: 'Low',
+    riskReason: '',
+    targetDate: '',
+    rampUpPlan: '',
+    lastUpdated: '2024-04-13',
+  },
+  {
+    name: 'm37',
+    status: 'Active',
+    sourcingRequired: 'No',
+    sourcingStatus: '',
+    channelLink: '',
+    projectType: 'TBD',
+    notes: '',
+    targetTalent: 0,
+    onboarded: 0,
+    pending: 0,
+    riskLevel: 'None',
+    riskReason: '',
+    targetDate: '',
+    rampUpPlan: '',
+    lastUpdated: '2024-04-13',
+  },
+  {
+    name: 'Meridian',
+    status: 'Active',
+    sourcingRequired: 'No',
+    sourcingStatus: '',
+    channelLink: '',
+    projectType: 'TBD',
+    notes: '',
+    targetTalent: 0,
+    onboarded: 0,
+    pending: 0,
+    riskLevel: 'None',
+    riskReason: '',
+    targetDate: '',
+    rampUpPlan: '',
+    lastUpdated: '2024-04-13',
+  },
+];
 
-    const grid = document.getElementById('lang-grid');
-    languages.forEach(({ name, flag, url }) => {
-      const a = document.createElement('a');
-      a.href = url;
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      a.className = 'lang-card';
-      a.innerHTML = `
-        <span class="lang-flag">${flag}</span>
-        <span class="lang-name">${name}</span>
-        <span class="lang-arrow">→</span>
-      `;
-      grid.appendChild(a);
+const SAMPLE_TALENT = {
+  'Vetto AI': [
+    { num: 1, talent: 'Alex Johnson',  role: 'Software Engineer',    project: 'SWE',                dateAdded: '2024-04-01', country: 'USA',    language: 'English',           rate: '$85/hr', summary: 'Senior SWE, 8yr exp, Python/ML focus',           email: 'alex.j@email.com' },
+    { num: 2, talent: 'Maria Garcia',  role: 'Software Engineer',    project: 'SWE',                dateAdded: '2024-04-01', country: 'USA',    language: 'English, Spanish',  rate: '$80/hr', summary: 'Full-stack engineer, LLM fine-tuning experience', email: 'maria.g@email.com' },
+    { num: 3, talent: 'James Lee',     role: 'ML Engineer',          project: 'SWE',                dateAdded: '2024-04-01', country: 'Canada', language: 'English',           rate: '$75/hr', summary: 'ML engineer, NLP specialist',                    email: 'james.l@email.com' },
+    { num: 4, talent: 'Priya Patel',   role: 'AI Researcher',        project: 'Terminal Bench',     dateAdded: '2024-04-01', country: 'USA',    language: 'English, Hindi',    rate: '$90/hr', summary: 'AI researcher, published LLM papers',            email: 'priya.p@email.com' },
+    { num: 5, talent: 'Tom Chen',      role: 'Backend Engineer',     project: 'Terminal Bench',     dateAdded: '2024-04-01', country: 'USA',    language: 'English, Mandarin', rate: '$70/hr', summary: 'Backend engineer, data pipeline expert',         email: 'tom.c@email.com' },
+    { num: 6, talent: 'Sarah Kim',     role: 'Finance Lead',         project: 'Financial Advisors', dateAdded: '2024-04-10', country: 'USA',    language: 'English, Korean',   rate: '$95/hr', summary: 'Finance domain expert, 12yr Wall St. exp',       email: 'sarah.k@email.com' },
+    { num: 7, talent: 'David Okafor',  role: 'Financial Advisor',    project: 'Financial Advisors', dateAdded: '2024-04-12', country: 'UK',     language: 'English',           rate: '$80/hr', summary: 'CFA, ex-Goldman Sachs analyst',                  email: 'david.o@email.com' },
+  ],
+  'Datasaur.ai (JPMC)': [
+    { num: 1, talent: 'Rachel Wong',   role: 'Financial Transcription', project: 'Call Transcription', dateAdded: '2024-04-12', country: 'USA',    language: 'English, Cantonese', rate: '$65/hr', summary: 'Financial transcription, JPMC background',      email: 'rachel.w@email.com' },
+    { num: 2, talent: 'Carlos Rivera', role: 'Financial Transcription', project: 'Call Transcription', dateAdded: '2024-04-12', country: 'Mexico', language: 'English, Spanish',  rate: '$45/hr', summary: 'Bilingual transcriber, finance terminology exp', email: 'carlos.r@email.com' },
+    { num: 3, talent: 'Nina Petrov',   role: 'Financial Transcription', project: 'Call Transcription', dateAdded: '2024-04-12', country: 'USA',    language: 'English, Russian',  rate: '$55/hr', summary: 'Ex-banking compliance, transcription background', email: 'nina.p@email.com' },
+  ],
+};
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+let companies = [];
+let talentByCompany = {};
+let currentFilter = 'all';
+
+// ══════════════════════════════════════════════════════════════
+// GOOGLE SHEETS FETCHING
+// ══════════════════════════════════════════════════════════════
+async function fetchGviz(sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+  const res = await fetch(url);
+  const text = await res.text();
+  // Response format: /*O_o*/\ngoogle.visualization.Query.setResponse({...});
+  const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?\s*$/);
+  if (!match) throw new Error('Invalid gviz response');
+  const data = JSON.parse(match[1]);
+  return parseGviz(data);
+}
+
+function parseGviz(data) {
+  const cols = data.table.cols.map(c => c.label || c.id);
+  const rows = data.table.rows || [];
+  return rows
+    .filter(row => row.c && row.c[0] && row.c[0].v != null && row.c[0].v !== '')
+    .map(row => {
+      const obj = {};
+      cols.forEach((col, i) => {
+        const cell = row.c && row.c[i];
+        obj[col] = cell ? (cell.f || cell.v || '') : '';
+      });
+      return obj;
     });
-  </script>
+}
 
+function mapEngagement(raw) {
+  return {
+    name:             raw['Company']           || '',
+    status:           raw['Status']            || '',
+    sourcingRequired: raw['Sourcing Required'] || '',
+    sourcingStatus:   raw['Sourcing Status']   || '',
+    channelLink:      raw['Channel Link']      || '',
+    projectType:      raw['Project Type']      || '',
+    notes:            raw['Notes']             || '',
+    targetTalent:     parseNum(raw['Target Talent']),
+    onboarded:        parseNum(raw['Onboarded']),
+    pending:          parseNum(raw['Pending']),
+    riskLevel:        raw['Risk Level']        || 'None',
+    riskReason:       raw['Risk Reason']       || '',
+    targetDate:       raw['Target Date']       || '',
+    rampUpPlan:       raw['Ramp Up Plan']      || '',
+    lastUpdated:      raw['Last Updated']      || '',
+  };
+}
+
+function mapTalent(raw) {
+  return {
+    num:       raw['#']           || '',
+    talent:    raw['Talent']      || '',
+    role:      raw['Role']        || '',
+    project:   raw['Project']     || '',
+    dateAdded: raw['Date Added']  || '',
+    country:   raw['Country']     || '',
+    language:  raw['Language']    || '',
+    rate:      raw['Rate']        || '',
+    summary:   raw['Summary']     || '',
+    email:     raw['Email']       || '',
+  };
+}
+
+function parseNum(v) {
+  const n = parseFloat(v);
+  return isNaN(n) ? 0 : n;
+}
+
+// ══════════════════════════════════════════════════════════════
+// DATA LOADING
+// ══════════════════════════════════════════════════════════════
+async function loadData() {
+  if (CONFIG.SHEET_ID) {
+    try {
+      const engRaw = await fetchGviz(CONFIG.ENGAGEMENTS_SHEET);
+      companies = engRaw.map(mapEngagement).filter(c => c.name);
+
+      // Fetch each company's own sheet in parallel; missing sheets resolve to []
+      const results = await Promise.allSettled(
+        companies.map(c => fetchGviz(c.name))
+      );
+      talentByCompany = {};
+      companies.forEach((c, i) => {
+        const r = results[i];
+        talentByCompany[c.name] = r.status === 'fulfilled'
+          ? r.value.map(mapTalent).filter(t => t.talent)
+          : [];
+      });
+
+      document.getElementById('config-banner').style.display = 'none';
+    } catch (e) {
+      console.warn('Sheet fetch failed:', e);
+      showBannerError(e);
+      useSampleData();
+    }
+  } else {
+    useSampleData();
+  }
+
+  document.getElementById('last-updated').textContent =
+    'Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+
+  renderDashboard();
+}
+
+function useSampleData() {
+  companies       = SAMPLE_COMPANIES;
+  talentByCompany = SAMPLE_TALENT;
+  const banner = document.getElementById('config-banner');
+  banner.style.display = 'flex';
+  banner.style.background = '#fef3c7';
+  banner.style.borderColor = '#fde68a';
+  document.getElementById('config-banner-icon').textContent = '📋';
+  document.getElementById('config-banner-msg').innerHTML = 'Using <strong>sample data</strong>. Enter your Google Sheet ID in Config to sync live data.';
+}
+
+function showBannerError(e) {
+  const banner = document.getElementById('config-banner');
+  banner.style.display = 'flex';
+  banner.style.background = '#fee2e2';
+  banner.style.borderColor = '#fecaca';
+  document.getElementById('config-banner-icon').textContent = '⚠️';
+  document.getElementById('config-banner-msg').innerHTML =
+    `<strong>Could not load sheet.</strong> Make sure it's shared as "Anyone with the link can view". Error: <code style="font-size:11px">${e.message}</code>`;
+}
+
+async function refreshData() {
+  await loadData();
+}
+
+// ══════════════════════════════════════════════════════════════
+// RENDERING — MAIN DASHBOARD
+// ══════════════════════════════════════════════════════════════
+function renderDashboard() {
+  updateStats();
+  renderTable();
+}
+
+function updateStats() {
+  const active      = companies.filter(c => c.status === 'Active').length;
+  const contracting = companies.filter(c => c.status === 'Contracting').length;
+  const pipeline    = companies.filter(c => c.status === 'Proposal' || c.status === 'Sales').length;
+  const atRisk      = companies.filter(c => c.riskLevel === 'High' || c.riskLevel === 'Medium').length;
+  const totalTarget = companies.reduce((s, c) => s + c.targetTalent, 0);
+  const totalOnboarded = companies.reduce((s, c) => s + c.onboarded, 0);
+
+  document.getElementById('stat-active').textContent = active;
+  document.getElementById('stat-contracting').textContent = contracting;
+  document.getElementById('stat-pipeline').textContent = pipeline;
+  document.getElementById('stat-risk').textContent = atRisk;
+  document.getElementById('stat-talent-total').textContent = totalTarget || '—';
+  document.getElementById('stat-talent-onboarded').textContent =
+    totalTarget ? `${totalOnboarded} onboarded so far` : '';
+}
+
+function filteredCompanies() {
+  if (currentFilter === 'all')  return companies;
+  if (currentFilter === 'risk') return companies.filter(c => c.riskLevel === 'High' || c.riskLevel === 'Medium');
+  return companies.filter(c => c.status === currentFilter);
+}
+
+function renderTable() {
+  const tbody = document.getElementById('company-rows');
+  const rows = filteredCompanies();
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-slate-400 py-12 text-sm">No companies match this filter.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(c => {
+    const pct       = c.targetTalent > 0 ? Math.round((c.onboarded / c.targetTalent) * 100) : null;
+    const fillClass = pct === null ? '' : pct >= 70 ? 'green' : pct >= 35 ? 'yellow' : 'red';
+
+    const talentCell = c.targetTalent > 0
+      ? `<div class="flex items-center gap-2 min-w-[160px]">
+           <div style="flex:1"><div class="progress-bar"><div class="progress-fill ${fillClass}" style="width:${pct}%"></div></div></div>
+           <span class="text-xs text-slate-600 whitespace-nowrap font-medium">${c.onboarded}/${c.targetTalent}</span>
+         </div>
+         <div class="text-xs text-slate-400 mt-1">${c.pending > 0 ? c.pending + ' pending' : ''}</div>`
+      : `<span class="text-xs text-slate-400">—</span>`;
+
+    const channelCell = c.channelLink
+      ? `<a href="${escHtml(c.channelLink)}" target="_blank" class="channel-btn">
+           <span>💬</span> Channel
+         </a>`
+      : `<span class="text-xs text-slate-300">—</span>`;
+
+    const dateCell = c.targetDate
+      ? `<span class="text-xs font-medium ${isOverdue(c.targetDate) ? 'text-red-600' : 'text-slate-600'}">${formatDate(c.targetDate)}</span>`
+      : `<span class="text-xs text-slate-300">—</span>`;
+
+    return `<tr class="row-clickable" onclick="showDetail('${escHtml(c.name)}')">
+      <td>
+        <div class="company-name">${escHtml(c.name)}</div>
+        <div class="company-subtype">${escHtml(c.projectType)}</div>
+      </td>
+      <td>${statusBadge(c.status)}</td>
+      <td>${talentCell}</td>
+      <td>${riskBadge(c.riskLevel, c.riskReason)}</td>
+      <td><div class="notes-preview">${escHtml(c.notes) || '<span class="text-slate-300">—</span>'}</div></td>
+      <td>${dateCell}</td>
+      <td>${channelCell}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// RENDERING — COMPANY DETAIL
+// ══════════════════════════════════════════════════════════════
+function showDetail(name) {
+  const c = companies.find(x => x.name === name);
+  if (!c) return;
+
+  const talentRows = talentByCompany[name] || [];
+  const pct = c.targetTalent > 0 ? Math.round((c.onboarded / c.targetTalent) * 100) : null;
+  const remaining = c.targetTalent > 0 ? c.targetTalent - c.onboarded : 0;
+
+  // Group talent by project
+  const projects = [...new Set(talentRows.map(t => t.project || 'Unassigned'))];
+  const byProject = {};
+  projects.forEach(p => { byProject[p] = talentRows.filter(t => (t.project || 'Unassigned') === p); });
+
+  function talentTableFor(rows) {
+    if (!rows.length) return `<p class="text-slate-400 text-sm">No talent in this project yet.</p>`;
+    return `<table class="talent-table">
+      <thead><tr>
+        <th>#</th><th>Talent</th><th>Email</th><th>Role</th><th>Date Added</th><th>Country</th><th>Language</th><th>Rate</th><th>Summary</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map((t, i) => `<tr>
+          <td class="text-slate-400 text-xs">${escHtml(String(t.num || i + 1))}</td>
+          <td class="font-medium text-slate-800">${escHtml(t.talent)}</td>
+          <td class="text-xs">${t.email ? `<a href="mailto:${escHtml(t.email)}" class="text-blue-600 hover:underline">${escHtml(t.email)}</a>` : '<span class="text-slate-300">—</span>'}</td>
+          <td class="text-slate-600 text-xs">${escHtml(t.role)}</td>
+          <td class="text-slate-500 text-xs whitespace-nowrap">${formatDate(t.dateAdded)}</td>
+          <td class="text-slate-600 text-xs">${escHtml(t.country)}</td>
+          <td class="text-slate-600 text-xs">${escHtml(t.language)}</td>
+          <td class="text-slate-700 text-xs font-medium whitespace-nowrap">${escHtml(t.rate)}</td>
+          <td class="text-slate-500 text-xs">${escHtml(t.summary)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  const talentSectionHTML = talentRows.length === 0
+    ? `<p class="text-slate-400 text-sm">No talent entries yet. Add rows to the <strong>${escHtml(c.name)}</strong> sheet tab.</p>`
+    : projects.length === 1 && projects[0] === 'Unassigned'
+      ? talentTableFor(talentRows)
+      : `<div class="project-tabs">
+          ${projects.map((p, i) => `
+            <button class="project-tab ${i === 0 ? 'active' : ''}" onclick="switchProjectTab(this, '${escHtml(p).replace(/'/g, "\\'")}')">
+              ${escHtml(p)}<span class="tab-count">${byProject[p].length}</span>
+            </button>`).join('')}
+        </div>
+        ${projects.map((p, i) => `
+          <div class="project-panel" data-project="${escHtml(p)}" style="${i !== 0 ? 'display:none' : ''}">
+            ${talentTableFor(byProject[p])}
+          </div>`).join('')}`;
+
+  document.getElementById('detail-content').innerHTML = `
+    <!-- Header -->
+    <div class="detail-section">
+      <div class="flex items-start justify-between flex-wrap gap-4">
+        <div>
+          <div class="flex items-center gap-3 flex-wrap">
+            <h1 class="text-2xl font-bold text-slate-900">${escHtml(c.name)}</h1>
+            ${statusBadge(c.status)}
+            ${riskBadge(c.riskLevel, c.riskReason)}
+          </div>
+          <p class="text-slate-500 mt-1 text-sm">${escHtml(c.projectType)}</p>
+        </div>
+        <div class="text-right text-xs text-slate-400">
+          ${c.lastUpdated ? `Last updated: ${formatDate(c.lastUpdated)}` : ''}
+        </div>
+      </div>
+      ${c.channelLink ? `
+        <div class="mt-4">
+          <a href="${escHtml(c.channelLink)}" target="_blank" class="channel-btn text-sm px-4 py-2">
+            💬 Open Channel
+          </a>
+        </div>` : ''}
+    </div>
+
+    <!-- KPIs -->
+    ${c.targetTalent > 0 ? `
+    <div class="detail-section">
+      <h3>Talent Metrics</h3>
+      <div class="flex gap-3 flex-wrap">
+        <div class="kpi-card text-center">
+          <div class="kpi-value">${c.targetTalent}</div>
+          <div class="kpi-label">Target</div>
+        </div>
+        <div class="kpi-card text-center">
+          <div class="kpi-value text-green-600">${c.onboarded}</div>
+          <div class="kpi-label">Onboarded</div>
+        </div>
+        <div class="kpi-card text-center">
+          <div class="kpi-value text-amber-600">${c.pending}</div>
+          <div class="kpi-label">Pending / In Progress</div>
+        </div>
+        <div class="kpi-card text-center">
+          <div class="kpi-value text-slate-500">${remaining}</div>
+          <div class="kpi-label">Still Needed</div>
+        </div>
+        <div class="kpi-card text-center">
+          <div class="kpi-value ${pct >= 70 ? 'text-green-600' : pct >= 35 ? 'text-amber-600' : 'text-red-600'}">${pct}%</div>
+          <div class="kpi-label">Completion</div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="flex justify-between text-xs text-slate-500 mb-1">
+          <span>Onboarding Progress</span><span>${pct}%</span>
+        </div>
+        <div class="progress-bar" style="height:10px">
+          <div class="progress-fill ${pct >= 70 ? 'green' : pct >= 35 ? 'yellow' : 'red'}" style="width:${pct}%"></div>
+        </div>
+      </div>
+    </div>` : ''}
+
+    <!-- Risk & Blockers -->
+    ${(c.riskLevel && c.riskLevel !== 'None') ? `
+    <div class="detail-section border-l-4 ${c.riskLevel === 'High' ? 'border-red-500' : 'border-amber-400'}">
+      <h3>Risk & Blockers</h3>
+      <div class="flex items-start gap-3">
+        <span class="text-2xl mt-0.5">${c.riskLevel === 'High' ? '🔴' : '🟡'}</span>
+        <div>
+          <div class="font-semibold text-slate-800 mb-1">${c.riskLevel} Risk</div>
+          <p class="text-slate-600 text-sm leading-relaxed">${escHtml(c.riskReason) || 'No reason specified.'}</p>
+        </div>
+      </div>
+    </div>` : ''}
+
+    <!-- Notes & Next Actions -->
+    ${c.notes ? `
+    <div class="detail-section">
+      <h3>Notes & Next Actions</h3>
+      <p class="text-slate-700 text-sm leading-relaxed whitespace-pre-line">${escHtml(c.notes)}</p>
+    </div>` : ''}
+
+    <!-- Timeline & Ramp-up -->
+    ${(c.targetDate || c.rampUpPlan) ? `
+    <div class="detail-section">
+      <h3>Timeline & Ramp-up Plan</h3>
+      ${c.targetDate ? `
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-slate-500 text-sm">🎯 Target Date:</span>
+          <span class="font-semibold text-sm ${isOverdue(c.targetDate) ? 'text-red-600' : 'text-slate-800'}">${formatDate(c.targetDate)}${isOverdue(c.targetDate) ? ' — OVERDUE' : ''}</span>
+        </div>` : ''}
+      ${c.rampUpPlan ? `<p class="text-slate-600 text-sm leading-relaxed whitespace-pre-line">${escHtml(c.rampUpPlan)}</p>` : ''}
+    </div>` : ''}
+
+    <!-- Talent Pipeline -->
+    <div class="detail-section">
+      <div class="flex items-center justify-between mb-4">
+        <h3 style="margin:0">Talent Pipeline</h3>
+        <span class="text-xs text-slate-400">${talentRows.length} ${talentRows.length === 1 ? 'person' : 'people'} · ${projects.length} ${projects.length === 1 ? 'project' : 'projects'}</span>
+      </div>
+      ${talentSectionHTML}
+    </div>
+
+    <!-- Sourcing Info -->
+    <div class="detail-section">
+      <h3>Sourcing Details</h3>
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div>
+          <span class="text-slate-500">Sourcing Required:</span>
+          <span class="ml-2 font-medium text-slate-800">${c.sourcingRequired || '—'}</span>
+        </div>
+        <div>
+          <span class="text-slate-500">Sourcing Status:</span>
+          <span class="ml-2 font-medium text-slate-800">${c.sourcingStatus || '—'}</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('main-view').style.display   = 'none';
+  document.getElementById('detail-view').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function showMain() {
+  document.getElementById('detail-view').style.display = 'none';
+  document.getElementById('main-view').style.display   = 'block';
+}
+
+// ══════════════════════════════════════════════════════════════
+// HELPERS — BADGES & FORMATTING
+// ══════════════════════════════════════════════════════════════
+function statusBadge(status) {
+  const cls = {
+    'Active':      'badge-active',
+    'Contracting': 'badge-contracting',
+    'Proposal':    'badge-proposal',
+    'Sales':       'badge-sales',
+  }[status] || 'badge-unknown';
+  const dot = {
+    'Active':      '●',
+    'Contracting': '●',
+    'Proposal':    '●',
+    'Sales':       '●',
+  }[status] || '●';
+  return `<span class="badge ${cls}">${dot} ${escHtml(status || 'Unknown')}</span>`;
+}
+
+function riskBadge(level, reason) {
+  if (!level || level === 'None') return `<span class="text-xs text-slate-300">—</span>`;
+  const cls = { High: 'risk-high', Medium: 'risk-medium', Low: 'risk-low' }[level] || 'risk-none';
+  const dotCls = { High: 'risk-dot-high', Medium: 'risk-dot-medium', Low: 'risk-dot-low' }[level] || 'risk-dot-none';
+  const icon = { High: '🔴', Medium: '🟡', Low: '🟢' }[level] || '⚪';
+  const tip = reason ? `<span class="tooltip">${escHtml(reason)}</span>` : '';
+  return `<div class="tooltip-wrap flex items-center gap-1.5 ${cls}">
+    <span class="risk-dot ${dotCls}"></span>
+    <span class="text-xs font-semibold">${level}</span>
+    ${tip}
+  </div>`;
+}
+
+function talentStatusBadge(status) {
+  const map = {
+    'Onboarded':  'tstatus-onboarded',
+    'Screening':  'tstatus-screening',
+    'Applied':    'tstatus-applied',
+    'Waitlisted': 'tstatus-waitlisted',
+    'On Hold':    'tstatus-hold',
+    'Rejected':   'tstatus-rejected',
+  };
+  return `<span class="tstatus ${map[status] || ''}">${escHtml(status)}</span>`;
+}
+
+function talentStatusClass(status) {
+  return {
+    'Onboarded':  'bg-green-50 text-green-700 border-green-200',
+    'Screening':  'bg-blue-50 text-blue-700 border-blue-200',
+    'Applied':    'bg-purple-50 text-purple-700 border-purple-200',
+    'Waitlisted': 'bg-amber-50 text-amber-700 border-amber-200',
+    'On Hold':    'bg-amber-50 text-amber-700 border-amber-200',
+    'Rejected':   'bg-red-50 text-red-700 border-red-200',
+  }[status] || 'bg-slate-50 text-slate-700 border-slate-200';
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const parsed = new Date(d);
+  if (isNaN(parsed)) return d;
+  return parsed.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+
+function isOverdue(d) {
+  if (!d) return false;
+  return new Date(d) < new Date();
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ══════════════════════════════════════════════════════════════
+// FILTER
+// ══════════════════════════════════════════════════════════════
+function switchProjectTab(btn, project) {
+  const section = btn.closest('.detail-section');
+  section.querySelectorAll('.project-tab').forEach(t => t.classList.remove('active'));
+  section.querySelectorAll('.project-panel').forEach(p => p.style.display = 'none');
+  btn.classList.add('active');
+  section.querySelector(`.project-panel[data-project="${project}"]`).style.display = '';
+}
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+// ══════════════════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════════════════
+function toggleConfig() {
+  const panel = document.getElementById('config-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  if (panel.style.display === 'block') {
+    document.getElementById('sheet-id-input').value = CONFIG.SHEET_ID;
+  }
+}
+
+function saveConfig() {
+  const id = document.getElementById('sheet-id-input').value.trim();
+  localStorage.setItem('ec_sheet_id', id);
+  CONFIG.SHEET_ID = id;
+  document.getElementById('config-panel').style.display = 'none';
+  loadData();
+}
+
+async function testConnection() {
+  const id = document.getElementById('sheet-id-input').value.trim();
+  const el = document.getElementById('test-result');
+  el.className = 'mt-3 text-xs rounded-lg px-3 py-2';
+  el.style.display = 'block';
+  el.style.background = '#f1f5f9';
+  el.style.color = '#475569';
+  el.textContent = '⏳ Testing connection…';
+  if (!id) { el.textContent = '⚠️ Please enter a Sheet ID first.'; return; }
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json&sheet=Engagements`;
+    const res = await fetch(url);
+    const text = await res.text();
+    if (text.includes('setResponse')) {
+      el.style.background = '#dcfce7'; el.style.color = '#15803d';
+      el.textContent = '✅ Connected! Sheet is accessible. Click Save & Reload.';
+    } else {
+      throw new Error('Unexpected response — sheet may not be public');
+    }
+  } catch(e) {
+    el.style.background = '#fee2e2'; el.style.color = '#991b1b';
+    el.textContent = `❌ Failed: ${e.message}. Make sure the sheet is shared as "Anyone with the link can view".`;
+  }
+}
+
+function showSetupGuide() {
+  document.getElementById('setup-modal').style.display = 'flex';
+}
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+loadData();
+</script>
 </body>
 </html>
